@@ -1,0 +1,27 @@
+00_Organisation
+01_Literatur
+02_thesis-template-master
+05_Data/Scrapy/Archiv/
+05_Data/API/Backup/
+05_Data/API/Archiv/
+06_Analyse/Learning_Alg
+06_Analyse/Lexicon_based/*
+!06_Analyse/Lexicon_based/german-emotion-dictionary/
+06_Analyse/Lexicon_based/german-emotion-dictionary/*
+!06_Analyse/Lexicon_based/german-emotion-dictionary/fundamental/
+06_Analyse/Plenum/Archiv/
+06_Analyse/wiki-news-300d-1M.vec
+80_notizen
+99_Landtage
+mongodb profile
+Notizen_Konsole_Code
+*.kate-swp
+*.ipynb_checkpoints
+pickle_TUWien_plenarPlenum_Sent_Wien_ID*
+06_Analyse/Plenum/afd-im-bundestag
+06_Analyse/Plenum/df_comment_date_correct.pickle
+06_Analyse/sent_df_Wien_final.p
+06_Analyse/twitter-de_d100_w5_min10.bin
+06_Analyse/Plenum/df_comment_all.pickle
+06_Analyse/de_core_news_sm-2.2.5/
+06_Analyse/Plenum/df_comment_all_date.pickle

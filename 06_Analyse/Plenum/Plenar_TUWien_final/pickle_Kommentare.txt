@@ -1,0 +1,1 @@
+AfD_Text1,AfD_Text2,CDU_CSU_Text1,CDU_CSU_Text2,DIE_LINKE_Text1,DIE_LINKE_Text2,FDP_Text1,FDP_Text2,Gruene_Text1,Gruene_Text2,SPD_Text1,SPD_Text2

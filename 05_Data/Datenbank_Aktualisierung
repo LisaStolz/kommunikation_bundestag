@@ -1,0 +1,103 @@
+#################################################
+# Schritte zur Aktualisierung der Twitter Daten #
+#################################################
+
+
+
+## 1.) Für jede Partei (alle) Tweets per Python Skript (Jupyter Notebook) laden.
+-> Skripte und Namens-Listen unter: /home/lisa/Darmstadt/Master Arbeit/05_Data/API/Twitter_<Partei>)
+-> Führt zu Duplikaten in der Datenbank "Twitter_mdp_extend"
+-> Wichtig: tweet_mode = "extended" - sonst wird der Text abgeschnitten
+
+
+
+## 2.) Duplikate entfernen - mongo:
+
+db.Twitter_mdp_extend.aggregate([
+ {
+     "$group": {
+         _id: {id: "$id"},
+         dups: { $addToSet: "$_id" } ,
+         count: { $sum : 1 }
+     }
+ },
+ {
+     "$match": {
+         count: { "$gt": 1 }
+     }
+ }
+],{
+    allowDiskUse : true,
+    }).forEach(function(doc) {
+   doc.dups.shift();
+   db.Twitter_mdp_extend.remove({
+       _id: {$in: doc.dups}
+   });
+})
+
+
+
+## 3.) Umformatieren des Felds "created_at" in datetime Format - mongo:
+
+db.Twitter_mdp_extend.aggregate([
+    {
+        '$addFields': {
+            'created_at_datetime': {
+                '$toDate': '$created_at'
+            }
+        }
+    }, {
+        '$out': 'Twitter_mdp_extend_datetime'
+    }
+])
+
+
+
+
+## 4.) Bringe Verschachtelte Collection auf eine Ebene und selektiere Felder von Interesse - mongo:
+
+db.Twitter_mdp_extend_datetime.aggregate([{$project: {
+_id: 1, id: 1, created_at: 1, created_at_datetime: 1, full_text: 1, is_quote_status: 1, lang: 1, retweet_count: 1, user_id: "$user.id", user_name: "$user.name", user_screen_name: "$user.screen_name", user_location: "$user.location", 
+user_description: "$user.description", user_followers_count: "$user.followers_count", user_friends_count: "$user.friends_count", user_created_at: "$user.created_at", retweeted_full_text: "$retweeted_status.full_text", retweeted_id: "$retweeted_status.id", retweeted_user_screen_name: "$retweeted_status.user.screen_name", retweeted_user_id: "$retweeted_status.user.id (http://retweeted_status.user.id)", retweeted_created_at: "$retweeted_status.created_at",    } }, {$out: 'twitter_mdp_ex_date_proj'}])
+
+
+
+
+## 5.) Partei Feld für jeden Tweet hinzufügen - mongo:
+
+db.twitter_mdp_ex_date_proj.aggregate(
+[{
+    $match: {
+        "user_party": {
+            $exists: false
+        }
+    }
+}, {
+    $lookup: {
+        from: 'parteizuordnung',
+        localField: 'user_screen_name',
+        foreignField: 'Name',
+        as: 'partei'
+    }
+}, {
+    $unwind: {
+        path: "$partei",
+        preserveNullAndEmptyArrays: true
+    }
+}, {
+    $addFields: {
+        user_party: "$partei.Partei"
+    }
+}]
+).forEach(function (x){db.twitter_mdp_ex_date_proj.save(x)})
+
+
+
+## 6.) Backup und übertragen auf Desktop Computer - Konsole (NICHT mongodb):
+
+mongodump -d Twitter -o "/home/lisa/Darmstadt/Master Arbeit/05_Data/API/Backup"
+
+---> Verbinde dich an Desktop PC mit: ssh desktop
+---> Lösche bisherige Collection: db.twitter_mdp_ex_date_proj.drop()
+
+mongorestore -d Twitter -c twitter_mdp_ex_date_proj '/home/lisa/Darmstadt/Master Arbeit/05_Data/API/Backup/Twitter/twitter_mdp_ex_date_proj.bson'
