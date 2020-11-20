@@ -1,0 +1,17 @@
+Bundestagsseiten sind mit dynamischen Seiten aufgebaut -> kompliziert mit Scrapy zu laden
+-> kopiere html (Copy- outer html) [Wichtig! Vorher alle Seiten/ Slides im Browser einmal aufrufen] und speicher Text in txt Datei
+-> Suche mit grep und Regex die entsprechenden xml dateinamen....
+ 2003  grep -Po -e '/resource/blob/[\d]{6}/[\w]{32}/19[\d]{3}-data.xml' 05_Data/Plenarprotokolle_Wahlperiode_19/plenarprotokolle-volle-seite_20200713.html | wc -l
+ 2004  grep -Po -e '/resource/blob/[\d]{6}/[\w]{32}/19[\d]{3}-data.xml' 05_Data/Plenarprotokolle_Wahlperiode_19/plenarprotokolle-volle-seite_20200713.html > 05_Data/Plenarprotokolle_Wahlperiode_19/plenarprotokolle-nur-links-zu-xml-dateien_20200713.txt
+ 2005  cd 05_Data/Plenarprotokolle_Wahlperiode_19/
+ 2006  sort -u plenarprotokolle-nur-links-zu-xml-dateien.txt | tail
+ 2007  sort -u plenarprotokolle-nur-links-zu-xml-dateien.txt | tail -n 1 >> plenarprotokolle-nur-links-zu-xml-dateien_20200713.txt 
+ 
+-> .... und füge "https://www.bundestag.de" davor ein
+ 2008  vi plenarprotokolle-nur-links-zu-xml-dateien_20200713.txt
+in vi -> :%s!^!https://www.bundestag.de!
+
+
+-> Lade plenarprotokolle mit Wget
+ 2009  wget -i plenarprotokolle-nur-links-zu-xml-dateien_20200713.txt
+
